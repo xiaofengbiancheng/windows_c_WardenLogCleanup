@@ -1,0 +1,12 @@
+# shell/python/md 使用LF
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+
+# windows bat/cmd 使用CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制不处理
+*.png binary
+*.jpg binary
