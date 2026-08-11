@@ -8,17 +8,26 @@ C:\warden\wisps\health-check\log
 ```
 
 ## 2. 日常运行
+
+### 部署到服务器
+将已验证的项目脚本部署为：
+
+```text
+C:\warden\wisps\health-check\WardenLogCleanup.bat
+```
+
+开发工作区中的 `D:\codex_code\codex_code1\WardenLogCleanup.bat` 与服务器部署文件是两份独立文件。修改开发工作区后，必须重新覆盖服务器部署文件；计划任务只会执行“要运行的任务”字段中指定的路径。
+
 ```bat
-cmd /c "D:\codex_code\codex_code1\WardenLogCleanup.bat"
+cmd /c "C:\warden\wisps\health-check\WardenLogCleanup.bat"
 ```
 
 无参数运行会注册或覆盖根目录任务 `\WardenLogCleanupTask`，计划每天 09:00 以 `SYSTEM` 执行，并立即清理一次。手动执行结束后会暂停窗口，便于查看结果。
 
 ### 临时执行一次且不注册任务
 ```bat
-cmd /c "set WARDEN_SKIP_TASK_INSTALL=1&& call D:\codex_code\codex_code1\WardenLogCleanup.bat"
+cmd /c "set WARDEN_SKIP_TASK_INSTALL=1&& call C:\warden\wisps\health-check\WardenLogCleanup.bat"
 ```
-
 这是一条独立命令，仅对当前 CMD 子进程生效，不会创建、覆盖或删除定时任务；但会按正常规则实际清理默认日志目录。
 
 ## 3. 卸载任务

@@ -11,7 +11,7 @@ if defined WARDEN_SKIP_TASK_INSTALL set "SKIP_TASK_INSTALL=%WARDEN_SKIP_TASK_INS
 
 if not defined TARGET_DIR set "TARGET_DIR=C:\warden\wisps\health-check\log"
 if not defined LOG_FILE set "LOG_FILE=cleanup_action.log"
-if not defined WHITELIST set "WHITELIST=health-check-win cleanup_action.log"
+if not defined WHITELIST set "WHITELIST=health-check-win.log cleanup_action.log"
 if not defined TASK_NAME set "TASK_NAME=WardenLogCleanupTask"
 if not defined TASK_TIME set "TASK_TIME=09:00"
 set "TASK_PATH=\%TASK_NAME%"
@@ -53,6 +53,7 @@ if errorlevel 1 (
 
 call :GetToday
 if errorlevel 1 (
+    echo [ERROR] Unable to determine today's date from: %DATE%
     set "EXIT_CODE=1"
     goto :finish
 )
@@ -120,6 +121,10 @@ echo [ERROR] Target directory not found: %TARGET_DIR%
 exit /b 1
 
 :GetToday
+set "DATE_A="
+set "DATE_B="
+set "DATE_C="
+set "DATE_D="
 for /f "tokens=1-4 delims=/-. " %%A in ("%DATE%") do (
     set "DATE_A=%%~A"
     set "DATE_B=%%~B"
@@ -127,9 +132,12 @@ for /f "tokens=1-4 delims=/-. " %%A in ("%DATE%") do (
     set "DATE_D=%%~D"
 )
 set "TODAY="
-if "!DATE_B:~0,1!"=="1" set "TODAY=!DATE_B!!DATE_C!!DATE_D!"
-if "!DATE_B:~0,1!"=="2" set "TODAY=!DATE_B!!DATE_C!!DATE_D!"
-if not defined TODAY set "TODAY=!DATE_A!!DATE_B!!DATE_C!"
+if "!DATE_A:~0,1!"=="1" set "TODAY=!DATE_A!!DATE_B!!DATE_C!"
+if "!DATE_A:~0,1!"=="2" set "TODAY=!DATE_A!!DATE_B!!DATE_C!"
+if not defined TODAY if "!DATE_D:~0,1!"=="1" set "TODAY=!DATE_D!!DATE_B!!DATE_C!"
+if not defined TODAY if "!DATE_D:~0,1!"=="2" set "TODAY=!DATE_D!!DATE_B!!DATE_C!"
+if not defined TODAY if "!DATE_C:~0,1!"=="1" set "TODAY=!DATE_C!!DATE_A!!DATE_B!"
+if not defined TODAY if "!DATE_C:~0,1!"=="2" set "TODAY=!DATE_C!!DATE_A!!DATE_B!"
 if not "!TODAY:~7,1!"=="" if "!TODAY:~8,1!"=="" exit /b 0
 set "TODAY="
 exit /b 1
