@@ -10,3 +10,4 @@
 # 二进制不处理
 *.png binary
 *.jpg binary
+*.bat text eol=crlf
