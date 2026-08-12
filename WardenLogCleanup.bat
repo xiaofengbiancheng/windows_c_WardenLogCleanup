@@ -11,7 +11,8 @@ if defined WARDEN_SKIP_TASK_INSTALL set "SKIP_TASK_INSTALL=%WARDEN_SKIP_TASK_INS
 
 if not defined TARGET_DIR set "TARGET_DIR=C:\warden\wisps\health-check\log"
 if not defined LOG_FILE set "LOG_FILE=cleanup_action.log"
-if not defined WHITELIST set "WHITELIST=health-check-win.log cleanup_action.log"
+if not defined WHITELIST set "WHITELIST=cleanup_action.log"
+if not defined CLEAR_ONLY_FILE set "CLEAR_ONLY_FILE=health-check-win.txt"
 if not defined TASK_NAME set "TASK_NAME=WardenLogCleanupTask"
 if not defined TASK_TIME set "TASK_TIME=09:00"
 set "TASK_PATH=\%TASK_NAME%"
@@ -148,6 +149,18 @@ set "FILE_NAME=%~nx1"
 
 if /I "%FILE_NAME%"=="%LOG_FILE%" exit /b 0
 
+if /I "%FILE_NAME%"=="%CLEAR_ONLY_FILE%" (
+    call :ClearFile "%FILE_FULL%" FILE_RESULT
+    if /I "!FILE_RESULT!"=="OK_CLEAR" (
+        set /a CLEAR_COUNT+=1
+        if /I not "%RUN_MODE%"=="scheduled" echo [CLEAR] !FILE_NAME! [clear-only]
+        exit /b 0
+    )
+    set /a FAIL_COUNT+=1
+    if /I not "%RUN_MODE%"=="scheduled" echo [FAIL] !FILE_NAME! [clear-only]
+    exit /b 0
+)
+
 set "IS_WHITELIST=0"
 for %%W in (%WHITELIST%) do (
     if /I "!FILE_NAME!"=="%%~W" set "IS_WHITELIST=1"
@@ -264,12 +277,14 @@ exit /b 0
 
 :ClearFile
 set "FILE_FULL_PATH=%~1"
+set "FILE_SIZE="
 type nul > "%FILE_FULL_PATH%" 2>nul
-if errorlevel 1 (
-    set "%~2=FAIL"
+for %%A in ("%FILE_FULL_PATH%") do set "FILE_SIZE=%%~zA"
+if "%FILE_SIZE%"=="0" (
+    set "%~2=OK_CLEAR"
     exit /b 0
 )
-set "%~2=OK_CLEAR"
+set "%~2=FAIL"
 exit /b 0
 
 :WriteSummary
