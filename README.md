@@ -45,9 +45,9 @@ schtasks /Query /TN "\WardenLogCleanupTask" /V /FO LIST
 重点确认“计划任务状态”为“已启用”、“下次运行时间”为每天 09:00、“作为用户运行”为 `SYSTEM`，以及“要运行的任务”包含 `cmd.exe /d /c`、已部署脚本的路径和 `/scheduled`。
 
 ## 5. 结果与故障处理
-`cleanup_action.log` 始终保留。`health-check-win.txt` 每次运行都会直接尝试清空内容，绝不会删除，即使它是当天文件或正在被其他进程使用。只要系统允许写入，文件会被清空并显示 `[CLEAR] health-check-win.txt [clear-only]`；真正无法写入时才保留原内容，显示 `[FAIL] health-check-win.txt [clear-only]` 并在汇总中增加 `Fail`。其他当天文件保留；历史文件未占用时删除、占用时尝试清空。`[KEEP]` 表示保留，`[DELETE]` 表示删除，`[CLEAR]` 表示清空（包括仅清空文件和占用的历史文件），`[FAIL]` 表示处理失败。汇总会追加到 `cleanup_action.log`。
+`cleanup_action.log` 始终保留。`health-check-win.log` 每次运行都会直接尝试清空内容，绝不会删除，也不受最后修改日期为当天的保留规则影响。只要系统允许写入，文件会被清空并显示 `[CLEAR] health-check-win.log [clear-only]`；真正无法写入时才保留原内容，显示 `[FAIL] health-check-win.log [clear-only]` 并在汇总中增加 `Fail`。若控制台显示“另一个程序正在使用此文件”，说明写入进程以独占方式锁定了文件；Windows 不允许其他程序截断该文件，拆分批处理、改用其他脚本语言或更换任务身份均无法绕过。此时只能等待进程释放句柄，或由运维人员停止对应服务/进程后手动清空再恢复服务。其他当天文件保留；历史文件未占用时删除、占用时尝试清空。`[KEEP]` 表示保留，`[DELETE]` 表示删除，`[CLEAR]` 表示清空（包括仅清空文件和占用的历史文件），`[FAIL]` 表示处理失败。汇总会追加到 `cleanup_action.log`。
 
 ## 6. 本地测试配置
-可在同一条 CMD 命令中临时设置 `WARDEN_TARGET_DIR`、`WARDEN_LOG_FILE`、`WARDEN_WHITELIST`、`WARDEN_TASK_NAME`、`WARDEN_TASK_TIME` 或 `WARDEN_SKIP_TASK_INSTALL`，以便在临时目录验证。`health-check-win.txt` 的名称由脚本顶部 `CLEAR_ONLY_FILE` 配置控制，不能通过环境变量覆盖。
+可在同一条 CMD 命令中临时设置 `WARDEN_TARGET_DIR`、`WARDEN_LOG_FILE`、`WARDEN_WHITELIST`、`WARDEN_TASK_NAME`、`WARDEN_TASK_TIME` 或 `WARDEN_SKIP_TASK_INSTALL`，以便在临时目录验证。`health-check-win.log` 的名称由脚本顶部 `CLEAR_ONLY_FILE` 配置控制，不能通过环境变量覆盖。
 
 遇到权限错误时，请重新打开管理员 CMD；遇到目录错误时，先确认目标目录存在。不要直接对生产目录做测试。

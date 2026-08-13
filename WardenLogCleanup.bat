@@ -12,7 +12,7 @@ if defined WARDEN_SKIP_TASK_INSTALL set "SKIP_TASK_INSTALL=%WARDEN_SKIP_TASK_INS
 if not defined TARGET_DIR set "TARGET_DIR=C:\warden\wisps\health-check\log"
 if not defined LOG_FILE set "LOG_FILE=cleanup_action.log"
 if not defined WHITELIST set "WHITELIST=cleanup_action.log"
-if not defined CLEAR_ONLY_FILE set "CLEAR_ONLY_FILE=health-check-win.txt"
+if not defined CLEAR_ONLY_FILE set "CLEAR_ONLY_FILE=health-check-win.log"
 if not defined TASK_NAME set "TASK_NAME=WardenLogCleanupTask"
 if not defined TASK_TIME set "TASK_TIME=09:00"
 set "TASK_PATH=\%TASK_NAME%"
@@ -280,7 +280,7 @@ set "FILE_FULL_PATH=%~1"
 set "FILE_SIZE="
 type nul > "%FILE_FULL_PATH%" 2>nul
 for %%A in ("%FILE_FULL_PATH%") do set "FILE_SIZE=%%~zA"
-if "%FILE_SIZE%"=="0" (
+if "!FILE_SIZE!"=="0" (
     set "%~2=OK_CLEAR"
     exit /b 0
 )
